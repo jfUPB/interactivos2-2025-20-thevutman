@@ -29,6 +29,20 @@ function draw() {
 ```
 
 #### **5. explore**
-Aqui realice algunos cambio
+<div>
+  <p>Aqui realice algunos cambios a las variables esto alterando los colores y la forma en la que crece el cuadrado, antes se hacia de manera horizontal, ahora se hace de manera vertical</p>
+  <img width="280" height="280" alt="image" src="https://github.com/user-attachments/assets/44a2f9f3-1744-48c8-acd0-75b187312eff" style="display: block; margin: 0 auto"/>
+</div>
 
 #### **6. Tinker**
+<div>
+  <p>aqui reconfigure el programa para que salgan 10 figuras en posiciones aleatorias que tambien varien su tamaño teniendo en cuenta la posicion del mouse e igual el color y que ahora en vez de cuadrados sean circulos</p>
+  <div>
+    <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/917ad6da-ae46-4288-93d7-df55c94b0488" />
+    <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/8f043c83-44a1-4304-ad51-38473418770d" />
+  </div>
+</div>
+
+---
+
+> [Link de mi versión reconstruida](https://editor.p5js.org/supervejito80/sketches/blCRl18US)
