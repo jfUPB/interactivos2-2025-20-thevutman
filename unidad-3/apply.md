@@ -5,7 +5,7 @@
 ### **Actividad 3**
 
 #### **Video**
-[Video de YouTube]()
+[Video de YouTube](https://youtube.com/shorts/sSNZFe5ed34?si=FulcQjWXNg_iS7jz)
 
 #### **Códigos**
 
@@ -243,3 +243,4 @@ function cambiarEstado(estado) {
     socket.emit('changeState', JSON.stringify(parametros));
 }
 ```
+
