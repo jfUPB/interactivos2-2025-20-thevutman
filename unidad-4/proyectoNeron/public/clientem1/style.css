@@ -1,6 +1,26 @@
-h1{
-    color: red;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    line-height: 1.6;
+    font-size: 1.6rem;
+    padding: 20px;
+}
+
+.title{
+    color: blue;
     text-align: center;
-    font-family: Arial, sans-serif;
     cursor: pointer;
+    font-size: 2.5rem;
+    font-weight: bold;
 }
