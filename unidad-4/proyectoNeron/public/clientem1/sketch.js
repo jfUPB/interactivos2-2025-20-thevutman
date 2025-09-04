@@ -1,35 +1,25 @@
+// Variable para la conexión con el servidor Socket.io
 let socket;
 
-window.onload = () => {
+function setup() {
+  // Inicializa la conexión con el servidor
   socket = io();
-  socket.emit("registerRole", { role: "clientem1" });
 
-  // Botones de control
-  document.getElementById("play-btn").onclick = () => {
-    socket.emit("clientem1:audio", { type: "play" });
-  };
-  document.getElementById("pause-btn").onclick = () => {
-    socket.emit("clientem1:audio", { type: "pause" });
-  };
-  document.getElementById("rewind-btn").onclick = () => {
-    socket.emit("clientem1:audio", { type: "jump", value: -10 }); // retrocede 10s
-  };
-  document.getElementById("forward-btn").onclick = () => {
-    socket.emit("clientem1:audio", { type: "jump", value: 10 }); // avanza 10s
-  };
+  // El cliente m1 se une a su "habitación"
+  socket.emit('join_room', 'm1');
+  
+  // -------------------- Manejo del slider --------------------
 
-  // Volumen
-  document.getElementById("volume-slider").oninput = (e) => {
-    socket.emit("clientem1:audio", { type: "volume", value: parseFloat(e.target.value) });
-  };
+  const slider = document.getElementById('parametroSlider');
+  const valorDisplay = document.getElementById('parametroValor');
 
-  // Filtro
-  document.getElementById("filter-slider").oninput = (e) => {
-    socket.emit("clientem1:audio", { type: "filter", value: parseFloat(e.target.value) });
-  };
-
-  // Efecto especial
-  document.getElementById("fx-btn").onclick = () => {
-    socket.emit("clientem1:audio", { type: "fx", value: "reverb" });
-  };
-};
+  // Escucha el evento 'input' para capturar cambios en tiempo real
+  slider.addEventListener('input', () => {
+    const valor = parseFloat(slider.value);
+    valorDisplay.textContent = valor.toFixed(2); // Muestra el valor con dos decimales
+    
+    // Envía el valor del slider al servidor
+    console.log(`Enviando parámetro M1: ${valor}`);
+    socket.emit('actualizar_parametro_m1', valor);
+  });
+}

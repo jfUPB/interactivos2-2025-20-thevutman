@@ -2,25 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Afrodita — Control Remoto</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afrodita - Control Remoto</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js"></script>
   <link rel="stylesheet" href="style.css">
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="sketch.js"></script>
 </head>
 <body>
-  <div id="remote-panel">
-    <div id="song-title">Afrodita — Control Remoto</div>
-    <div id="state-buttons">
-      <button data-state="STATE_A">Ausencia</button>
-      <button data-state="STATE_B">Deseo</button>
-      <button data-state="STATE_C">Ruptura</button>
+
+  <h1>Control de Concierto</h1>
+
+  <div class="controls">
+    <h2>Estados de la Canción</h2>
+    <div class="buttons">
+      <button id="fase1Btn">Fase 1: Invocación</button>
+      <button id="fase2Btn">Fase 2: Oleada</button>
+      <button id="fase3Btn">Fase 3: Rendición</button>
     </div>
-    <div id="word-section">
-      <input id="wordInput" type="text" placeholder="Palabra clave o verso">
-      <button id="sendWordBtn">Enviar</button>
-    </div>
-    <div id="last-words"></div>
   </div>
+
+  <div class="controls">
+    <h2>Control de Música</h2>
+    <div class="buttons">
+      <button id="playBtn">Reproducir</button>
+      <button id="pauseBtn">Pausar</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <script src="sketch.js"></script>
 </body>
 </html>

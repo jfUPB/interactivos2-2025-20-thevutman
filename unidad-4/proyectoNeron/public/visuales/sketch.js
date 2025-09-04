@@ -1,347 +1,246 @@
-// --- ESQUELETO BASE PARA VISUALES ---
-
+// Variable para la conexión con el servidor Socket.io
 let socket;
-let currentState = "STATE_A";
-let stateParams = {}; // Parámetros recibidos del remoto
-let clientInputs = []; // Inputs de móviles/escritorio
 
-// Fragmentos clave de la letra (puedes ajustar o rotar según el estado)
-const lyricFragments = [
-  "Hoy busco dónde estás en esta inmensidad,",
-  "Eres mi regalo y castigo.",
-  "Eres las olas del mar, la luz en la oscuridad.",
-  "Ese dolor que se convierte en mi amigo.",
-  "Te siento levantarme si me derribo.",
-  "Quiero poder caminar contigo.",
-  "Aunque posiblemente me destruyas.",
-  "Para el dolor te convertiste en una cura.",
-  "Sin siquiera estar a tu lado, ya generas placer.",
-  "A tus labios soy adicto.",
-  "Vivo en la locura de no ser quien significo.",
-  "Las heridas del papel en el que escribo."
-];
+// Variables de la máquina de estados
+let estadoActual = 'fase1';
+let cancion;
+let analizer; // Para analizar el sonido
 
-let lyricIndex = 0;
-let lyricTimer = 0;
+// Variables para los parámetros de los clientes M1 y M2
+let parametroM1 = 0.5;
+let parametroM2 = 0.5;
+let palabrasRecibidas = [];
 
-let keyBursts = [];
+// Nuevas variables para la interacción del público en D1
+let colorVotado = 'morado'; // Color por defecto
+let pulsosRecibidos = 0; // Contador de pulsos
+let ultimoPulso = 0; // Para calcular el ritmo
+let ritmoPromedio = 0;
 
-let song;
-let isPlaying = false;
+let parametros = { m1: 0.5, m2: 0.5 };
 
 function preload() {
-  soundFormats('mp3', 'ogg');
-  song = loadSound('afrodita.mp3');
+  // Carga la canción
+  // IMPORTANTE: Debes colocar el archivo 'Afrodita.mp3' dentro de la carpeta 'clientevisuales'
+  cancion = loadSound('./Afrodita.mp3'); 
 }
 
 function setup() {
+  // Crea el canvas en el tamaño de la ventana
   createCanvas(windowWidth, windowHeight);
-  colorMode(HSB, 360, 100, 100, 1);
-  noStroke();
-
-  // Conexión a Socket.IO
+  
+  // Inicializa la conexión con el servidor
   socket = io();
 
-  // Registrar rol
-  socket.emit("registerRole", { role: "visuals" });
+  // El cliente visuales se une a su "habitación"
+  socket.emit('join_room', 'visuales');
 
-  // Escuchar cambios de estado
-  socket.on("visuals:state", ({ state }) => {
-    currentState = state;
-    // Aquí puedes iniciar transición suave si lo deseas
+  // -------------------- Manejo de eventos del servidor --------------------
+
+  // Recibe la señal para cambiar de estado
+  socket.on('estado_actualizado', (nuevoEstado) => {
+    console.log(`Cambiando a la fase: ${nuevoEstado}`);
+    estadoActual = nuevoEstado;
   });
 
-  // Escuchar parámetros del remoto
-  socket.on("visuals:params", (params) => {
-    stateParams = params;
-    // Puedes interpolar/transicionar parámetros aquí
+  // Recibe los parámetros de los clientes M1 y M2
+  socket.on('parametro_m1_actualizado', (data) => {
+    parametros.m1 = data;
   });
 
-  socket.on("visuals:ingest", (payload) => {
-    // payload: { sourceId, type, data }
-    if (payload.type === "key" && payload.sourceId === "cliented1") {
-      triggerKeyEffect(payload.data.key);
-    } else {
-      clientInputs.push({ ...payload, t: millis() });
+  socket.on('parametro_m2_actualizado', (data) => {
+    parametros.m2 = data;
+  });
+
+  // Recibe las palabras del cliente D1 (público)
+  socket.on('palabra_recibida', (palabra) => {
+    palabrasRecibidas.push(palabra);
+    // Limita el número de palabras en el array para no sobrecargarlo
+    if (palabrasRecibidas.length > 10) {
+      palabrasRecibidas.shift(); // Elimina la palabra más antigua
     }
   });
 
-  socket.on("visuals:word", (payload) => {
-    if (!window.fallingWords) window.fallingWords = [];
-    window.fallingWords.push({
-      word: payload.word,
-      x: random(width * 0.2, width * 0.8),
-      y: -20,
-      alpha: 1,
-      speed: random(1, 2.5)
-    });
+  // Recibe la señal de pausa/reproducir
+  socket.on('control_musica_desde_servidor', (accion) => {
+    if (accion === 'play' && !cancion.isPlaying()) {
+      cancion.play();
+    } else if (accion === 'pause' && cancion.isPlaying()) {
+      cancion.pause();
+    }
   });
 
-  socket.on("audio:command", handleAudioCommand);
-}
+  // Nuevo oyente para el voto de color
+  socket.on('voto_color_audiencia', (color) => {
+    colorVotado = color;
+  });
 
-function handleAudioCommand(cmd) {
-  if (cmd.type === "play") song.play();
-  if (cmd.type === "pause") song.pause();
-  if (cmd.type === "volume") song.setVolume(cmd.value);
-  if (cmd.type === "jump") song.jump(cmd.value); // value: segundos
+  // Nuevo oyente para el pulso de ritmo
+  socket.on('pulso_ritmo_audiencia', () => {
+    let tiempoActual = millis();
+    if (ultimoPulso !== 0) {
+      let intervalo = tiempoActual - ultimoPulso;
+      // Promedio del ritmo para suavizar
+      ritmoPromedio = (ritmoPromedio * 0.9 + (1000 / intervalo) * 0.1);
+    }
+    ultimoPulso = tiempoActual;
+    pulsosRecibidos++;
+  });
+
+  // Configura el analizador de sonido
+  analizer = new p5.Amplitude();
+  analizer.setInput(cancion);
 }
 
 function draw() {
-  background(0, 0, 0, 0.15); // Ligeramente transparente para estelas
-
-  // Limpiar inputs viejos (ejemplo: solo últimos 2 segundos)
-  let now = millis();
-  clientInputs = clientInputs.filter(inp => now - inp.t < 2000);
-
-  // Máquina de estados
-  if (currentState === "STATE_A") {
-    drawStateA();
-  } else if (currentState === "STATE_B") {
-    drawStateB();
-  } else if (currentState === "STATE_C") {
-    drawStateC();
-  }
-
-  // HUD mínimo (estado actual)
-  drawHUD();
-
-  // Dibuja los keyBursts
-  for (let i = keyBursts.length - 1; i >= 0; i--) {
-    let b = keyBursts[i];
-    fill(b.hue, 80, 100, b.alpha);
-    ellipse(b.x, b.y, b.r, b.r);
-    b.r += 6;
-    b.alpha *= 0.93;
-    if (b.alpha < 0.05) keyBursts.splice(i, 1);
-  }
-
-  // Mostrar fragmentos de la letra en momentos clave (ejemplo: cada 12s)
-  if (millis() - lyricTimer > 12000) {
-    lyricIndex = (lyricIndex + 1) % lyricFragments.length;
-    showLyric(lyricFragments[lyricIndex]);
-    lyricTimer = millis();
+  // La máquina de estados: llama a la función de dibujo correspondiente
+  switch (estadoActual) {
+    case 'fase1':
+      dibujarFase1();
+      break;
+    case 'fase2':
+      dibujarFase2();
+      break;
+    case 'fase3':
+      dibujarFase3();
+      break;
+    default:
+      // En caso de que el estado no coincida, pinta un fondo de seguridad.
+      background(0);
+      break;
   }
 }
 
-function showLyric(text) {
-  const overlay = document.getElementById("lyric-overlay");
-  overlay.textContent = text;
-  overlay.style.opacity = 0.85;
-  setTimeout(() => { overlay.style.opacity = 0; }, 10000);
-}
+// -------------------- Funciones de cada fase (Mejoradas) --------------------
 
-// --- Algoritmo visual detallado para STATE_A ---
+// -------------------- Funciones de cada fase (Versión Final) --------------------
 
-let halos = [];
-
-function drawStateA() {
-  // Decaimiento visual (estela)
-  fill(0, 0, 0, 0.15);
-  rect(0, 0, width, height);
-
-  // Agregar nuevos halos desde los inputs recientes
-  for (let inp of clientInputs) {
-    let { data, sourceId } = inp;
-    let x = data.x * width;
-    let y = data.y * height;
-
-    // Parámetros desde remoto o valores por defecto
-    let radius = stateParams.radius || 60;
-    let hue = stateParams.hue || 270;
-    let decay = stateParams.decay || 0.85;
-    let alpha = 0.3;
-
-    // Color por sourceId para agencia visual
-    let sourceHue = {
-      clientem1: 280,
-      clientem2: 260,
-      cliented1: 295
-    }[sourceId] || hue;
-
-    halos.push({
-      x, y,
-      r: radius,
-      hue: sourceHue,
-      alpha,
-      decay,
-      born: millis()
-    });
+function dibujarFase1() {
+  // Ahora el color morado puede ser alterado por el voto del público.
+  let colorFondo;
+  switch(colorVotado) {
+    case 'morado':
+      colorFondo = color(10, 0, 20);
+      break;
+    case 'azul':
+      colorFondo = color(0, 10, 20);
+      break;
+    case 'ambar':
+      colorFondo = color(20, 10, 0);
+      break;
+    default:
+      colorFondo = color(10, 0, 20);
   }
+  background(colorFondo);
 
-  // Dibujar y actualizar halos
-  for (let i = halos.length - 1; i >= 0; i--) {
-    let h = halos[i];
-    fill(h.hue, 60, 80, h.alpha);
-    ellipse(h.x, h.y, h.r, h.r);
+  let nivelAmplitud = analizer.getLevel();
 
-    // Expansión y desvanecimiento
-    h.r *= 1.01;
-    h.alpha *= h.decay;
-
-    // Eliminar si es muy transparente o grande
-    if (h.alpha < 0.01 || h.r > width * 1.2) {
-      halos.splice(i, 1);
-    }
-  }
-}
-
-function drawStateB() {
-  // Parámetros desde remoto o valores por defecto
-  let speed = stateParams.speed || 2;
-  let noiseAmp = stateParams.noise || 0.2;
-  let thickness = stateParams.thickness || 4;
-
-  // Guardar ondas activas
-  if (!window.waves) window.waves = [];
-
-  // Generar nuevas ondas a partir de inputs recientes
-  for (let inp of clientInputs) {
-    let { data, sourceId } = inp;
-    let x = data.x * width;
-    let y = data.y * height;
-
-    // Solo crear onda si es un burst (puedes mejorar el trigger)
-    if (random() < 0.05) {
-      window.waves.push({
-        x, y,
-        r: 10,
-        t0: millis(),
-        hue: sourceId === "clientem1" ? 210 : sourceId === "clientem2" ? 40 : 200,
-        alpha: 0.7
-      });
-    }
-  }
-
-  // Dibujar y actualizar ondas
-  for (let i = window.waves.length - 1; i >= 0; i--) {
-    let w = window.waves[i];
-    let t = (millis() - w.t0) / 1000;
-    let r = w.r + t * speed * 80;
-    let a = w.alpha * map(r, 10, width * 0.7, 1, 0);
-
-    strokeWeight(thickness);
-    noFill();
-    stroke(w.hue, 80, 100, a);
-
-    // Dibuja la onda con turbulencia (ruido)
-    beginShape();
-    for (let ang = 0; ang < TWO_PI; ang += 0.05) {
-      let nr = r + noise(w.x + cos(ang) * 10, w.y + sin(ang) * 10, t) * noiseAmp * 80;
-      let px = w.x + cos(ang) * nr;
-      let py = w.y + sin(ang) * nr;
-      vertex(px, py);
-    }
-    endShape(CLOSE);
-
-    // Eliminar si es muy grande o transparente
-    if (r > width * 0.7 || a < 0.01) {
-      window.waves.splice(i, 1);
-    }
-  }
-  noStroke();
-}
-
-function drawStateC() {
-  // Parámetros desde remoto o valores por defecto
-  let tempo = stateParams.tempo || 120;
-  let contrast = stateParams.contrast || 0.5;
-  let density = stateParams.density || 16;
-
-  // --- GRID DE PARTÍCULAS ---
-  let cols = floor(constrain(density, 6, 40));
-  let rows = floor(cols * (height / width));
-  let cellW = width / cols;
-  let cellH = height / rows;
-
-  // Oscilación global por tempo
-  let osc = sin(millis() * 0.002 * (tempo / 60));
-
-  // Inputs activos para "anclar" partículas
-  let anchors = clientInputs.map(inp => ({
-    x: inp.data.x * width,
-    y: inp.data.y * height
-  }));
-
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
-      let cx = i * cellW + cellW / 2;
-      let cy = j * cellH + cellH / 2;
-
-      // Calcular distancia a los anchors
-      let minDist = anchors.length > 0 ? min(anchors.map(a => dist(cx, cy, a.x, a.y))) : 9999;
-      let fallDelay = map(minDist, 0, 120, 1.5, 0.2, true);
-
-      // Caída modulada por tiempo y delay
-      let fall = (millis() * 0.04 * fallDelay + i * 10) % height;
-      let bright = map(osc, -1, 1, 60 - 40 * contrast, 100);
-
-      fill(210, 10, bright, 0.8);
-      ellipse(cx, (cy + fall) % height, cellW * 0.5, cellH * 0.5);
-    }
-  }
-
-  // --- PALABRAS QUE CAEN ---
-  if (!window.fallingWords) window.fallingWords = [];
-  let wordList = ["ausencia", "deseo", "ruptura", "eco", "placer", "dolor", "vacío", "memoria", "silencio"];
+  // AHORA USAMOS `parametros.m1` y `parametros.m2`
+  let numCirculos = map(parametros.m1, 0, 1, 10, 100);
+  let sizeBase = map(parametros.m2, 0, 1, 30, 150);
   
-  // Probabilidad de spawn según inputs
-  if (random() < 0.01 * clientInputs.length) {
-    let w = random(wordList);
-    let x = random(width * 0.2, width * 0.8);
-    window.fallingWords.push({
-      word: w,
-      x,
-      y: -20,
-      alpha: 1,
-      speed: random(1, 2.5)
+  for (let i = 0; i < numCirculos; i++) {
+    let x = map(noise(frameCount * 0.005 + i), 0, 1, 0, width);
+    let y = map(noise(frameCount * 0.007 + i), 0, 1, 0, height);
+
+    let r = map(sin(frameCount * 0.01 + i), -1, 1, 100, 200);
+    let g = 0;
+    let b = map(cos(frameCount * 0.02 + i), -1, 1, 150, 255);
+    let alpha = map(nivelAmplitud, 0, 0.5, 50, 150);
+    fill(r, g, b, alpha);
+    
+    let size = sizeBase + nivelAmplitud * 300;
+    noStroke();
+    ellipse(x, y, size, size);
+  }
+}
+
+function dibujarFase2() {
+  // La amplitud de la onda se ve afectada por la velocidad de los pulsos del público.
+  background(10, 10, 50);
+
+  let nivelAmplitud = analizer.getLevel();
+  let amp = map(nivelAmplitud, 0, 1, 50, 500);
+
+  // AHORA USAMOS `parametros.m2` y `parametros.m1`
+  let ritmoVisual = map(ritmoPromedio, 0, 2, 0.05, 0.2);
+  let ondaAmplitud = map(parametros.m2, 0, 1, 100, 800) + amp + ritmoVisual * 500;
+  
+  let ondaFrecuencia = map(parametros.m1, 0, 1, 0.01, 0.05);
+
+  let colorOnda = color(
+    map(sin(frameCount * 0.01), -1, 1, 100, 255),
+    map(cos(frameCount * 0.01), -1, 1, 100, 255),
+    map(sin(frameCount * 0.02), -1, 1, 200, 255)
+  );
+
+  noFill();
+  strokeWeight(5);
+  stroke(colorOnda, 150);
+
+  beginShape();
+  for (let x = 0; x <= width; x += 10) {
+    let y = height / 2 + sin(x * ondaFrecuencia + frameCount * 0.05) * (ondaAmplitud);
+    vertex(x, y);
+  }
+  endShape();
+}
+
+let palabrasConVida = []; // Para gestionar las palabras que caen
+
+function dibujarFase3() {
+  // Rendición y Ruptura
+  // Fragmentos de palabras y partículas que caen y se disuelven.
+  background(5, 0, 5); // Fondo casi negro
+
+  // Agregar nuevas palabras a la lista
+  if (palabrasRecibidas.length > 0) {
+    let nuevaPalabra = palabrasRecibidas.pop(); // Saca la última palabra
+    palabrasConVida.push({
+      texto: nuevaPalabra,
+      x: random(width),
+      y: -50, // Empieza fuera de la pantalla
+      alpha: 255
     });
   }
 
-  // Dibujar y actualizar palabras
-  textAlign(CENTER, CENTER);
-  textSize(cellH * 0.8);
-  for (let i = window.fallingWords.length - 1; i >= 0; i--) {
-    let fw = window.fallingWords[i];
-    fill(210, 0, 100, fw.alpha * 0.8);
-    text(fw.word, fw.x, fw.y);
+  // Dibujar y actualizar las palabras en movimiento
+  for (let i = palabrasConVida.length - 1; i >= 0; i--) {
+    let p = palabrasConVida[i];
+    
+    // Velocidad de caída controlada por M1
+    let velocidad = map(parametroM1, 0, 1, 1, 5);
+    p.y += velocidad;
+    
+    // Opacidad controlada por M2 (velocidad de desvanecimiento)
+    let desvanecimiento = map(parametroM2, 0, 1, 0.5, 5);
+    p.alpha -= desvanecimiento;
 
-    fw.y += fw.speed;
-    fw.alpha *= 0.992;
+    // Dibujar la palabra
+    fill(255, p.alpha);
+    textSize(32);
+    textAlign(CENTER);
+    text(p.texto, p.x, p.y);
 
-    if (fw.y > height + 30 || fw.alpha < 0.05) {
-      window.fallingWords.splice(i, 1);
+    // Si la palabra es invisible o sale de la pantalla, la eliminamos
+    if (p.alpha <= 0 || p.y > height + 50) {
+      palabrasConVida.splice(i, 1);
     }
   }
 }
 
-function triggerKeyEffect(key) {
-  // Puedes mapear diferentes teclas a diferentes colores/efectos
-  let hue = 270; // Default morado
-  if ("aeiou".includes(key.toLowerCase())) hue = 45; // Vocales = ámbar
-  if (" ".includes(key)) hue = 200; // Espacio = azul
-  if ("1234567890".includes(key)) hue = 120; // Números = verde
-
-  keyBursts.push({
-    x: random(width * 0.2, width * 0.8),
-    y: random(height * 0.2, height * 0.8),
-    r: 40,
-    hue,
-    alpha: 1
-  });
+// Función para el control de la música
+function mousePressed() {
+  // Esta función es necesaria para que la música se reproduzca en el navegador
+  // El navegador requiere una interacción del usuario para iniciar el audio
+  // En un concierto, el operador del cliente 'remoto' será el que inicie la canción.
+  // Pero aquí, para pruebas, puedes hacer clic para iniciarla.
+  if (!cancion.isPlaying()) {
+    cancion.play();
+  }
 }
 
-function drawHUD() {
-  push();
-  fill(0, 0, 100, 0.7);
-  rect(10, 10, 180, 40, 8);
-  fill(0, 0, 0);
-  textSize(16);
-  textAlign(LEFT, TOP);
-  text(`Estado: ${currentState}`, 20, 20);
-  pop();
-}
-
+// Ajusta el tamaño del canvas si se redimensiona la ventana
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }

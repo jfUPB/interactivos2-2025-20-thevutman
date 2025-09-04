@@ -2,31 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Afrodita — Letra</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afrodita - Público</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js"></script>
   <link rel="stylesheet" href="style.css">
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="sketch.js"></script>
 </head>
 <body>
-  <div id="overlay">
-    <div id="song-title">Afrodita — Neron Arkano</div>
-    <div id="lyric-controls">
-      <button id="prev-lyric">Anterior</button>
-      <span id="lyric-fragment"></span>
-      <button id="next-lyric">Siguiente</button>
-    </div>
-    <div id="creative-controls">
-      <button id="highlight-lyric">Resaltar verso</button>
-      <label>
-        Color:
-        <input type="color" id="lyric-color" value="#ffd6a0">
-      </label>
-      <label>
-        Eco:
-        <input type="checkbox" id="lyric-eco">
-      </label>
+
+  <div id="control-fase-1" class="controls">
+    <h1>Vota un Color</h1>
+    <p>¿Qué emoción sientes?</p>
+    <div class="color-buttons">
+      <button class="color-btn" data-color="morado" style="background-color: #6a0dad;"></button>
+      <button class="color-btn" data-color="azul" style="background-color: #0d6a8a;"></button>
+      <button class="color-btn" data-color="ambar" style="background-color: #ffbf00;"></button>
     </div>
   </div>
+
+  <div id="control-fase-2" class="controls hidden">
+    <h1>Pulso del Deseo</h1>
+    <p>Toca para sentir el ritmo</p>
+    <button id="pulsoBtn">Pulso</button>
+  </div>
+
+  <div id="control-fase-3" class="controls hidden">
+    <h1>Di una palabra</h1>
+    <p>¿Qué emoción sientes?</p>
+    <form id="wordForm">
+      <input type="text" id="wordInput" placeholder="Escribe aquí...">
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <div id="estado-info">
+    <p>Fase actual: <span id="estado-display">Fase 1</span></p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="sketch.js"></script>
 </body>
 </html>

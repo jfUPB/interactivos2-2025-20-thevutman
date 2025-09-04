@@ -9,83 +9,58 @@ html {
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background: #0a0020;
-  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
-  color: #fff;
-  min-height: 100vh;
-}
-#remote-panel {
-  max-width: 420px;
-  margin: 4vh auto;
-  padding: 2vw 3vw 3vw 3vw;
-  background: rgba(30, 10, 60, 0.92);
-  border-radius: 18px;
-  box-shadow: 0 8px 32px #0008;
+  font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-}
-#song-title {
-  font-size: 2.1em;
-  font-weight: 700;
-  margin-bottom: 2vh;
-  letter-spacing: 0.08em;
-  text-shadow: 0 2px 16px #000, 0 0 8px #4e2a8e;
-}
-#state-buttons {
-  display: flex;
-  gap: 1vw;
-  margin-bottom: 2vh;
-}
-#state-buttons button {
-  background: #4e2a8e;
+  height: 100vh;
+  margin: 0;
+  background-color: #121212;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 1em 1.5em;
-  font-size: 1.1em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-#state-buttons button.active,
-#state-buttons button:hover {
-  background: #ffd6a0;
-  color: #2a0033;
-}
-#word-section {
-  display: flex;
-  gap: 0.5em;
-  width: 100%;
-  margin-bottom: 1em;
-}
-#wordInput {
-  flex: 1;
-  padding: 0.7em;
-  border-radius: 6px;
-  border: none;
-  font-size: 1em;
-}
-#sendWordBtn {
-  background: #ffd6a0;
-  color: #2a0033;
-  border: none;
-  border-radius: 6px;
-  padding: 0.7em 1.2em;
-  font-size: 1em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-#sendWordBtn:hover {
-  background: #fff2d6;
-}
-#last-words {
-  margin-top: 1em;
-  font-size: 1em;
-  color: #ffd6a0;
-  min-height: 2em;
   text-align: center;
+}
+
+h1 {
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+h2 {
+  color: #999;
+  margin-bottom: 1rem;
+}
+
+.controls {
+  margin-bottom: 3rem;
+  width: 90%;
+  max-width: 600px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+button {
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #6a0dad; /* Morado de Afrodita */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+  background-color: #8a2be2;
+}
+
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }

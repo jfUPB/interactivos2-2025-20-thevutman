@@ -2,22 +2,24 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Afrodita — Parámetros Visuales</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afrodita - Control M2</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js"></script>
   <link rel="stylesheet" href="style.css">
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="sketch.js"></script>
 </head>
 <body>
-  <div id="overlay">
-    <div id="song-title">Afrodita — Parámetros Visuales</div>
-    <div id="param-controls">
-      <!-- Sliders generados dinámicamente según el estado -->
-    </div>
-    <div id="touch-area">
-      <span>Toca o arrastra para decidir dónde aparecen los elementos</span>
-      <canvas id="touch-canvas"></canvas>
-    </div>
+
+  <h1>Control de Parámetros M2</h1>
+
+  <div class="controls">
+    <h2>Control Secundario</h2>
+    <input type="range" id="parametroSliderM2" min="0" max="1" step="0.01" value="0.5">
+    <p>Valor: <span id="parametroValorM2">0.5</span></p>
   </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <script src="sketch.js"></script>
 </body>
 </html>
