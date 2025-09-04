@@ -12,14 +12,32 @@
 
   <h1>Control de Parámetros M1</h1>
 
-  <div class="controls">
-    <h2>Control Principal</h2>
-    <input type="range" id="parametroSlider" min="0" max="1" step="0.01" value="0.5">
-    <p>Valor: <span id="parametroValor">0.5</span></p>
+  <div id="control-fase-1" class="controls">
+    <h2>Fase 1: Invocación</h2>
+    <input type="range" id="parametroSlider1" min="0" max="1" step="0.01" value="0.5">
+    <p>Saturación: <span id="parametroValor1">0.5</span></p>
+    <button id="pulsanteBtn">Modo Pulsante</button>
+  </div>
+
+  <div id="control-fase-2" class="controls hidden">
+    <h2>Fase 2: Oleada</h2>
+    <input type="range" id="parametroSlider2" min="0" max="1" step="0.01" value="0.5">
+    <p>Velocidad de Onda: <span id="parametroValor2">0.5</span></p>
+    <button id="direccionBtn">Cambio de Dirección</button>
+  </div>
+
+  <div id="control-fase-3" class="controls hidden">
+    <h2>Fase 3: Rendición</h2>
+    <input type="range" id="parametroSlider3" min="0" max="1" step="0.01" value="0.5">
+    <p>Velocidad de Disolución: <span id="parametroValor3">0.5</span></p>
+    <button id="gravedadBtn">Gravedad</button>
+  </div>
+
+  <div id="estado-info">
+    <p>Fase actual: <span id="estado-display">Fase 1</span></p>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  
   <script src="sketch.js"></script>
 </body>
 </html>

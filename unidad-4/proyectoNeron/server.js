@@ -61,6 +61,38 @@ io.on('connection', (socket) => {
     io.to('visuales').emit('pulso_ritmo_audiencia', pulso);
   });
 
+  // Oyentes para las nuevas interacciones de M1
+  socket.on('m1_pulsante', (data) => {
+    console.log(`M1: Modo pulsante activado: ${data}`);
+    io.to('visuales').emit('m1_pulsante_actualizado', data);
+  });
+
+  socket.on('m1_cambio_direccion', (data) => {
+    console.log(`M1: Cambio de dirección de ondas: ${data}`);
+    io.to('visuales').emit('m1_cambio_direccion_actualizado', data);
+  });
+
+  socket.on('m1_gravedad', (data) => {
+    console.log(`M1: Gravedad activada: ${data}`);
+    io.to('visuales').emit('m1_gravedad_actualizado', data);
+  });
+
+  // Oyentes para las nuevas interacciones de M2
+  socket.on('m2_forma', (data) => {
+    console.log(`M2: Cambio de forma activado: ${data}`);
+    io.to('visuales').emit('m2_forma_actualizado', data);
+  });
+
+  socket.on('m2_estroboscopico', (data) => {
+    console.log(`M2: Modo estroboscópico activado: ${data}`);
+    io.to('visuales').emit('m2_estroboscopico_actualizado', data);
+  });
+
+  socket.on('m2_agrupar', (data) => {
+    console.log(`M2: Agrupar partículas activado: ${data}`);
+    io.to('visuales').emit('m2_agrupar_actualizado', data);
+  });
+
   socket.on('disconnect', () => {
     console.log('Cliente desconectado:', socket.id);
   });
