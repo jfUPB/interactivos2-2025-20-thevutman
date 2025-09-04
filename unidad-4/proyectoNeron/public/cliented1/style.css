@@ -9,18 +9,74 @@ html {
 }
 
 body {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    line-height: 1.6;
-    font-size: 1.6rem;
-    padding: 20px;
+  margin: 0;
+  padding: 0;
+  background: #0a0020;
+  overflow: hidden;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
 }
-
-.title{
-    color: blue;
-    text-align: center;
-    cursor: pointer;
-    font-size: 2.5rem;
-    font-weight: bold;
+#overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#song-title {
+  color: #fff;
+  font-size: 2.2vw;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 2vh;
+  text-shadow: 0 2px 16px #000, 0 0 8px #4e2a8e;
+}
+#lyric-controls {
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+  margin-bottom: 2vh;
+}
+#lyric-fragment {
+  color: #ffd6a0;
+  font-size: 2vw;
+  text-align: center;
+  text-shadow: 0 2px 16px #000, 0 0 8px #4e2a8e;
+  min-width: 30vw;
+  max-width: 60vw;
+}
+#lyric-controls button {
+  background: #4e2a8e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#lyric-controls button:hover {
+  background: #ffd6a0;
+  color: #2a0033;
+}
+#creative-controls {
+  display: flex;
+  gap: 1vw;
+  align-items: center;
+  margin-top: 1vh;
+}
+#highlight-lyric {
+  background: #ffd6a0;
+  color: #2a0033;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#highlight-lyric:hover {
+  background: #fff2d6;
 }

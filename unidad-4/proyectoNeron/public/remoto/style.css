@@ -9,18 +9,83 @@ html {
 }
 
 body {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    line-height: 1.6;
-    font-size: 1.6rem;
-    padding: 20px;
+  margin: 0;
+  padding: 0;
+  background: #0a0020;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  color: #fff;
+  min-height: 100vh;
 }
-
-.title{
-    color: blue;
-    text-align: center;
-    cursor: pointer;
-    font-size: 2.5rem;
-    font-weight: bold;
+#remote-panel {
+  max-width: 420px;
+  margin: 4vh auto;
+  padding: 2vw 3vw 3vw 3vw;
+  background: rgba(30, 10, 60, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #0008;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#song-title {
+  font-size: 2.1em;
+  font-weight: 700;
+  margin-bottom: 2vh;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 16px #000, 0 0 8px #4e2a8e;
+}
+#state-buttons {
+  display: flex;
+  gap: 1vw;
+  margin-bottom: 2vh;
+}
+#state-buttons button {
+  background: #4e2a8e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 1em 1.5em;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#state-buttons button.active,
+#state-buttons button:hover {
+  background: #ffd6a0;
+  color: #2a0033;
+}
+#word-section {
+  display: flex;
+  gap: 0.5em;
+  width: 100%;
+  margin-bottom: 1em;
+}
+#wordInput {
+  flex: 1;
+  padding: 0.7em;
+  border-radius: 6px;
+  border: none;
+  font-size: 1em;
+}
+#sendWordBtn {
+  background: #ffd6a0;
+  color: #2a0033;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#sendWordBtn:hover {
+  background: #fff2d6;
+}
+#last-words {
+  margin-top: 1em;
+  font-size: 1em;
+  color: #ffd6a0;
+  min-height: 2em;
+  text-align: center;
 }

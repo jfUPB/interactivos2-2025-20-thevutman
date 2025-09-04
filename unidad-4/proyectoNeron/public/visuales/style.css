@@ -9,18 +9,32 @@ html {
 }
 
 body {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    line-height: 1.6;
-    font-size: 1.6rem;
-    padding: 20px;
+  margin: 0;
+  padding: 0;
+  background: #0a0020;
+  overflow: hidden;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
 }
-
-.title{
-    color: blue;
-    text-align: center;
-    cursor: pointer;
-    font-size: 2.5rem;
-    font-weight: bold;
+#hud {
+  position: absolute;
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 1.5vw;
+  text-align: center;
+  background: rgba(20,0,40,0.5);
+  border-radius: 10px;
+  padding: 0.7em 2em;
+  pointer-events: none;
+}
+#progreso-cancion {
+  margin-top: 0.5em;
+  height: 0.7em;
+  background: #ffd6a0;
+  border-radius: 0.3em;
+  width: 100%;
+  max-width: 40vw;
+  margin-left: auto;
+  margin-right: auto;
 }
