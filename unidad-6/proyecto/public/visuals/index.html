@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador - Bad Bunny DTMF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .visualizer-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 2px, transparent 2px);
+            background-size: 100px 100px;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+        
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(1deg); }
+            50% { transform: translate(10px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 10px) rotate(0.5deg); }
+        }
+        
+        .content-area {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .waiting-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        .logo {
+            font-size: 8em;
+            margin-bottom: 30px;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        .title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 4s ease-in-out infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        
+        .subtitle {
+            font-size: 2em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+        }
+        
+        .status-message {
+            font-size: 1.5em;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .photo-display {
+            position: relative;
+            max-width: 80vw;
+            max-height: 80vh;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 5px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .sticker-overlay {
+            position: absolute;
+            font-size: 3em;
+            z-index: 20;
+            animation: stickerPop 0.5s ease-out;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        @keyframes stickerPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            50% { transform: scale(1.2) rotate(-90deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .maraca-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6em;
+            z-index: 100;
+            pointer-events: none;
+            animation: maracaShake 0.5s ease-out;
+        }
+        
+        @keyframes maracaShake {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            25% { transform: translate(-60%, -40%) rotate(-10deg) scale(1.1); }
+            50% { transform: translate(-40%, -60%) rotate(10deg) scale(1.2); }
+            75% { transform: translate(-60%, -40%) rotate(-5deg) scale(1.1); }
+        }
+        
+        .instruction-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .instruction-icon {
+            font-size: 10em;
+            margin-bottom: 40px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+        
+        .instruction-text {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .instruction-subtext {
+            font-size: 1.8em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .smile-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+        
+        .music-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+        
+        .music-playing {
+            animation: musicPulse 1s infinite;
+        }
+        
+        @keyframes musicPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Responsive para pantallas grandes */
+        @media (min-width: 1920px) {
+            .logo { font-size: 12em; }
+            .title { font-size: 6em; }
+            .subtitle { font-size: 3em; }
+            .instruction-icon { font-size: 15em; }
+            .instruction-text { font-size: 4em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="visualizer-container">
+        <div class="background-animation"></div>
+        <div class="content-area" id="content-area">
+            <!-- El contenido se generará dinámicamente -->
+        </div>
+        <div class="music-indicator" id="music-indicator" style="display: none;">
+            🎵 Música
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
+</body>
+</html>
